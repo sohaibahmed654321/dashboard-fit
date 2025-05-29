@@ -1,0 +1,17 @@
+.add-record-button {
+  display: inline-block;
+  padding: 10px 25px;
+  background-color: #2ecc71;
+  border-radius: 5px;
+  color: white;
+  font-weight: 600;
+  font-size: 16px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  user-select: none;
+}
+
+.add-record-button:hover {
+  background-color: #27ae60;
+}
