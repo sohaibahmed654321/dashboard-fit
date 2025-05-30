@@ -21,30 +21,32 @@ const ViewSetCounter = () => {
   return (
     <div className="d-flex">
       <Sidebar />
-      <div className="flex-grow-1 p-4" style={{ marginLeft: '250px', padding: '20px', minHeight: '100vh', backgroundColor: '#f8f9fa' }}>
-    <div className="container my-5">
       <div
-        className="card shadow-lg border-0 text-white"
-        style={{ backgroundColor: "#1c1c1e", borderRadius: "1rem" }}
+        className="flex-grow-1 p-4"
+        style={{
+          marginLeft: "250px",
+          padding: "20px",
+          minHeight: "100vh",
+          backgroundColor: "#f8f9fa",
+        }}
       >
-        <div
-          className="card-header text-center"
-          style={{
-            background: "linear-gradient(to right, #00c6ff, #0072ff)",
-            borderTopLeftRadius: "1rem",
-            borderTopRightRadius: "1rem",
-          }}
-        >
-          <h2 className="mb-0 py-2">📋 Step Counter History</h2>
-        </div>
-        <div className="card-body">
+        <div className="container my-5">
+          <h3 className="mb-4 text-center fw-bold text-primary">
+            📋 Walking Steps History
+            <div className="fs-6 text-secondary mt-1">
+              A quick glance at your walking progress 🏃‍♂️📈
+            </div>
+          </h3>
+
           {sets.length === 0 ? (
-            <p className="text-center text-secondary">No Step Counters Added Yet.</p>
+            <p className="text-center fs-5 text-muted">
+              No Step Counters Added Yet.
+            </p>
           ) : (
-            <div className="table-responsive">
-              <table className="table table-dark table-borderless align-middle">
-                <thead>
-                  <tr style={{ borderBottom: "2px solid #444" }}>
+            <div className="table-responsive shadow-sm rounded-4 border bg-white">
+              <table className="table align-middle mb-0">
+                <thead className="table-light">
+                  <tr>
                     <th>🏋️‍♀️ Exercise</th>
                     <th>🔢 Step Count</th>
                     <th>⏱️ Timestamp</th>
@@ -52,23 +54,14 @@ const ViewSetCounter = () => {
                 </thead>
                 <tbody>
                   {sets.map((set) => (
-                    <tr
-                      key={set._id}
-                      className="rounded-3"
-                      style={{
-                        backgroundColor: "#2c2c2e",
-                        borderRadius: "10px",
-                        transition: "background 0.3s",
-                      }}
-                    >
-                      <td className="fw-semibold text-info">{set.workoutName}</td>
+                    <tr key={set._id}>
+                      <td className="fw-semibold text-primary">{set.workoutName}</td>
                       <td>
                         <span className="badge bg-success fs-6 px-3 py-2">
                           {set.totalSets}
                         </span>
                       </td>
-                     
-                      <td className="text-secondary small">
+                      <td className="text-muted small">
                         {new Date(set.createdAt).toLocaleString()}
                       </td>
                     </tr>
@@ -79,8 +72,6 @@ const ViewSetCounter = () => {
           )}
         </div>
       </div>
-    </div>
-    </div>
     </div>
   );
 };

@@ -9,13 +9,11 @@ const AddSetCounter = () => {
   const [formData, setFormData] = useState({
     workoutName: "",
     totalSets: "",
-
   });
 
   const workoutRef = useRef(null);
   const navigate = useNavigate();
 
-  // Walking-specific types only
   const walkingTypes = [
     "Brisk Walking",
     "Normal Walking",
@@ -68,54 +66,71 @@ const AddSetCounter = () => {
   return (
     <div className="d-flex">
       <Sidebar />
-      <div className="flex-grow-1 p-4" style={{ marginLeft: '250px', padding: '20px', minHeight: '100vh', backgroundColor: '#f8f9fa' }}>
-    <div className="container mt-5">
-      <div className="card shadow-lg p-4 rounded-4 bg-dark text-white">
-        <h2 className="text-center mb-4">🚶 Add Walking Step</h2>
-        <form onSubmit={handleSubmit}>
-          <div className="mb-3">
-            <label className="form-label">Walking Type</label>
-            <select
-              name="workoutName"
-              value={formData.workoutName}
-              onChange={handleChange}
-              className="form-select"
-              ref={workoutRef}
-              required
-            >
-              <option value="">Select Walking Type</option>
-              {walkingTypes.map((type, index) => (
-                <option key={index} value={type}>
-                  {type}
-                </option>
-              ))}
-            </select>
+      <div
+        className="flex-grow-1 p-4"
+        style={{
+          marginLeft: "250px",
+          padding: "20px",
+          minHeight: "100vh",
+          backgroundColor: "#f8f9fa",
+        }}
+      >
+        <div className="container my-5">
+          <div
+            className="card shadow-lg p-4 mx-auto"
+            style={{ maxWidth: "600px", borderRadius: "15px" }}
+          >
+            <h2 className="text-center mb-4 fw-bold text-primary">
+              🚶‍♂️ Add Your Walking Activity
+              <div className="fs-6 text-secondary mt-2">
+                Track your steps and stay consistent! 🏃‍♀️
+              </div>
+            </h2>
+
+            <form onSubmit={handleSubmit}>
+              <div className="mb-3">
+                <label className="form-label fw-semibold">Walking Type</label>
+                <select
+                  name="workoutName"
+                  value={formData.workoutName}
+                  onChange={handleChange}
+                  className="form-control rounded-pill"
+                  ref={workoutRef}
+                  required
+                >
+                  <option value="">-- Select Walking Type --</option>
+                  {walkingTypes.map((type, index) => (
+                    <option key={index} value={type}>
+                      {type}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="mb-4">
+                <label className="form-label fw-semibold">Total Steps</label>
+                <input
+                  type="number"
+                  name="totalSets"
+                  value={formData.totalSets}
+                  onChange={handleChange}
+                  className="form-control rounded-pill"
+                  placeholder="e.g., 4"
+                  required
+                  min="1"
+                />
+              </div>
+
+              <button
+                type="submit"
+                className="btn btn-primary w-100 rounded-pill fw-bold"
+              >
+                ➕ Add Walking Step
+              </button>
+            </form>
           </div>
-
-          <div className="mb-3">
-            <label className="form-label">Total Steps</label>
-            <input
-              type="number"
-              name="totalSets"
-              value={formData.totalSets}
-              onChange={handleChange}
-              className="form-control"
-              placeholder="e.g., 4"
-              required
-            />
-          </div>
-
-         
-
-       
-
-          <button type="submit" className="btn btn-success w-100">
-            ➕ Add Walking Step
-          </button>
-        </form>
+        </div>
       </div>
-    </div>
-    </div>
     </div>
   );
 };
