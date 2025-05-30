@@ -1,22 +1,42 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import "bootstrap/dist/css/bootstrap.min.css";
+import "react-datepicker/dist/react-datepicker.css";
+import DatePicker from "react-datepicker";
 import Sidebar from "../Sidebar";
 
 const ViewSetCounter = () => {
   const [sets, setSets] = useState([]);
+  const [filteredSets, setFilteredSets] = useState([]);
+  const [selectedDate, setSelectedDate] = useState(null);
 
   useEffect(() => {
     const fetchSetCounters = async () => {
       try {
         const res = await axios.get("http://localhost:3009/api/setcounter");
         setSets(res.data);
+        setFilteredSets(res.data);
       } catch (error) {
         alert("❌ Error fetching sets: " + error.message);
       }
     };
     fetchSetCounters();
   }, []);
+
+  useEffect(() => {
+    if (selectedDate) {
+      const filtered = sets.filter((set) => {
+        const setDate = new Date(set.createdAt);
+        return setDate.toDateString() === selectedDate.toDateString();
+      });
+      setFilteredSets(filtered);
+    } else {
+      setFilteredSets(sets);
+    }
+  }, [selectedDate, sets]);
+
+  // Calculate total steps
+  const totalSteps = filteredSets.reduce((sum, set) => sum + (set.totalSets || 0), 0);
 
   return (
     <div className="d-flex">
@@ -38,9 +58,30 @@ const ViewSetCounter = () => {
             </div>
           </h3>
 
-          {sets.length === 0 ? (
+          <div className="d-flex justify-content-center mb-4">
+            <DatePicker
+              selected={selectedDate}
+              onChange={(date) => setSelectedDate(date)}
+              placeholderText="📅 Select a Date"
+              className="form-control w-25"
+            />
+            <button 
+              className="btn btn-outline-secondary ms-2"
+              onClick={() => setSelectedDate(null)}
+            >
+              Reset
+            </button>
+          </div>
+
+          <div className="mb-4 text-center">
+            <h5 className="fw-bold text-success">
+              🌟 Total Steps: {totalSteps}
+            </h5>
+          </div>
+
+          {filteredSets.length === 0 ? (
             <p className="text-center fs-5 text-muted">
-              No Step Counters Added Yet.
+              {selectedDate ? "No Step Counters for selected date." : "No Step Counters Added Yet."}
             </p>
           ) : (
             <div className="table-responsive shadow-sm rounded-4 border bg-white">
@@ -53,7 +94,7 @@ const ViewSetCounter = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {sets.map((set) => (
+                  {filteredSets.map((set) => (
                     <tr key={set._id}>
                       <td className="fw-semibold text-primary">{set.workoutName}</td>
                       <td>
