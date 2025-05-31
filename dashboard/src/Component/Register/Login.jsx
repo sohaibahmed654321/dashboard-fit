@@ -3,13 +3,15 @@ import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom'; // ✅ added navigate
 
 function Login() {
   const [formData, setFormData] = useState({
     email: '',
     password: ''
   });
+
+  const navigate = useNavigate(); // ✅ initialize navigation
 
   const handleChange = (e) => {
     setFormData(prev => ({
@@ -22,8 +24,16 @@ function Login() {
     e.preventDefault();
     try {
       const res = await axios.post('http://localhost:3009/api/users/users/login', formData);
-      toast.success('✅ Login successful!');
-      localStorage.setItem("user_data",JSON.stringify(res.data.user))
+
+      // ✅ Save only userId
+      localStorage.setItem("userId", res.data.user.id);
+
+      toast.success('✅ Login successful! Redirecting...');
+      
+      // ✅ Redirect after a short delay so toast is visible
+      setTimeout(() => {
+        navigate("/work");
+      }, 1000);
     } catch (error) {
       toast.error("❌ Login failed: " + (error.response?.data?.error || error.message));
     }
@@ -96,7 +106,6 @@ function Login() {
         <ToastContainer position="top-right" autoClose={3000} />
       </div>
 
-      {/* Animation keyframes */}
       <style>
         {`
           @keyframes fadeIn {

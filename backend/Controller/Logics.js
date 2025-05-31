@@ -1,4 +1,3 @@
-// ✅ Logics.js
 const User = require("../Models/Users");
 let bcrypt = require("bcrypt");
 let nodemailer = require("nodemailer");
@@ -16,6 +15,7 @@ let email_info = nodemailer.createTransport({
 
 const tokenMap = new Map();
 
+// ✅ Register
 const registerUser = async (req, res) => {
   try {
     const { name, email, password, age, gender, height, weight, fitnessGoal } = req.body;
@@ -23,7 +23,20 @@ const registerUser = async (req, res) => {
     if (existingUser) return res.status(400).json({ error: "Email already registered" });
 
     let passwordenc = bcrypt.hashSync(password, 12);
-    const newUser = new User({ name, email, password: passwordenc, age, gender, height, weight, fitnessGoal });
+    const heightInMeters = height / 100;
+    const bmi = weight / (heightInMeters * heightInMeters);
+
+    const newUser = new User({
+      name,
+      email,
+      password: passwordenc,
+      age,
+      gender,
+      height,
+      weight,
+      fitnessGoal,
+      bmi: parseFloat(bmi.toFixed(2))
+    });
     await newUser.save();
 
     res.status(201).json({ message: "User registered successfully", user: newUser });
@@ -31,8 +44,8 @@ const registerUser = async (req, res) => {
     let Email_Body = {
       to: email,
       from: process.env.EMAIL,
-      Subject: "Registered Successfully",
-      html: `<h3>Hi ${name}<br/><br/> your Account has been resgistered successfully, Congragulations.<br/>
+      subject: "Registered Successfully",
+      html: `<h3>Hi ${name}<br/><br/> your Account has been registered successfully, Congratulations.<br/>
         <a href='http://localhost:3002/web/i'>Continue on Website</a></h3>`
     };
     email_info.sendMail(Email_Body, (error, info) => error ? console.log(error.message) : console.log("Email sent"));
@@ -42,6 +55,7 @@ const registerUser = async (req, res) => {
   }
 };
 
+// ✅ Get All Users
 const getAllUsers = async (req, res) => {
   try {
     const users = await User.find();
@@ -52,20 +66,31 @@ const getAllUsers = async (req, res) => {
   }
 };
 
+// ✅ Login
 const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
     const user = await User.findOne({ email });
-    if (!user || !bcrypt.compareSync(password, user.password)) return res.status(401).json({ error: "Invalid email or password" });
+    if (!user || !bcrypt.compareSync(password, user.password))
+      return res.status(401).json({ error: "Invalid email or password" });
 
     let token = jwt.sign({ id: user.id }, process.env.SECRET_KEY, { expiresIn: "1h" });
-    res.status(200).json({ message: "Login successful", user: { tokenid: token, username: user.name, email: user.email, id: user.id } });
+    res.status(200).json({
+      message: "Login successful",
+      user: {
+        tokenid: token,
+        username: user.name,
+        email: user.email,
+        id: user.id,
+      },
+    });
   } catch (error) {
     console.error("Login Error:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
 
+// ✅ Forgot Password
 const forgot_pswd = async function (req, res) {
   try {
     let { email } = req.body;
@@ -83,13 +108,16 @@ const forgot_pswd = async function (req, res) {
       html: `Hi ${user.name},<br/>Click the link to reset your password:<br/><a href="${link}">${link}</a>`
     };
 
-    email_info.sendMail(Email_Body, (e, i) => e ? res.status(501).json({ msg: e.message }) : res.status(200).json({ msg: "Password reset link sent" }));
+    email_info.sendMail(Email_Body, (e, i) => e
+      ? res.status(501).json({ msg: e.message })
+      : res.status(200).json({ msg: "Password reset link sent" }));
   } catch (error) {
     console.log(error.message);
     res.status(501).json({ msg: error.message });
   }
 };
 
+// ✅ Reset Password
 const resetPassword = async (req, res) => {
   try {
     const token = req.params.token;
@@ -111,10 +139,54 @@ const resetPassword = async (req, res) => {
   }
 };
 
+// ✅ Get User Profile (BMI info)
+const getUserProfile = async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const user = await User.findById(userId).select("height weight bmi");
+
+    if (!user) return res.status(404).json({ error: "User not found" });
+
+    res.status(200).json(user);
+  } catch (error) {
+    console.error("Profile Fetch Error:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+// ✅ Update User height/weight and recalculate BMI
+const updateUserProfile = async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const { height, weight } = req.body;
+
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ error: "User not found" });
+
+    user.height = height;
+    user.weight = weight;
+
+    // BMI Calculation
+    const heightInMeters = height / 100;
+    const bmi = weight / (heightInMeters * heightInMeters);
+    user.bmi = parseFloat(bmi.toFixed(2));
+
+    await user.save();
+
+    res.status(200).json({ message: "Profile updated successfully", bmi: user.bmi });
+  } catch (error) {
+    console.error("Update Profile Error:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+// ✅ Export All Functions
 module.exports = {
   registerUser,
   getAllUsers,
   loginUser,
   forgot_pswd,
   resetPassword,
+  getUserProfile,
+  updateUserProfile,
 };

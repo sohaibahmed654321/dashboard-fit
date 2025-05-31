@@ -49,6 +49,14 @@ const Sidebar = () => {
         { label: 'Show Steps', path: '/viewset' },
       ],
     },
+     {
+      label: 'Progress',
+      icon: <FaUtensils />,
+      subItems: [
+        { label: 'Add Progress', path: '/p' },
+       
+      ],
+    },
     {
       label: 'Settings',
       icon: <FaUserCog />,
