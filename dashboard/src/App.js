@@ -30,7 +30,7 @@ function App() {
         <Routes>
             <Route path="/register" element={<Register />} />
           <Route path="/show" element={<Showdata />} />
-          <Route path="/login" element={<Login />} />
+          <Route path="/" element={<Login />} />
           <Route path="/fp" element={<ForgotPassword />} />
           <Route path="/work" element={<AddWorkout />} />
           <Route path="/view" element={<ViewWorkout />} />
@@ -39,7 +39,7 @@ function App() {
           <Route path="/nutrition" element={<AddNutritionForm />} />
           <Route path="/v" element={<Viewnutrition/>} />
           <Route path="/p" element={<Progress/>} />
-          <Route path="/" element={<Home/>} />
+          <Route path="/h" element={<Home/>} />
 
           
 

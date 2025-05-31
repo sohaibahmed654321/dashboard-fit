@@ -9,6 +9,7 @@ import {
   FaList,
   FaChevronDown,
   FaChevronRight,
+  FaChartLine, 
 } from 'react-icons/fa';
 
 const Sidebar = () => {
@@ -49,14 +50,13 @@ const Sidebar = () => {
         { label: 'Show Steps', path: '/viewset' },
       ],
     },
-     {
-      label: 'Progress',
-      icon: <FaUtensils />,
-      subItems: [
-        { label: 'Add Progress', path: '/p' },
-       
-      ],
-    },
+   {
+  label: 'Progress',
+  icon: <FaChartLine />,
+  subItems: [
+    { label: 'Add Progress', path: '/p' },
+  ],
+},
     {
       label: 'Settings',
       icon: <FaUserCog />,
@@ -80,7 +80,13 @@ const Sidebar = () => {
         boxShadow: '2px 0 5px rgba(0,0,0,0.5)',
       }}
     >
-      <h2 className="text-center text-primary mb-4">Admin Dashboard</h2>
+    <img
+  src="/Fitness (3).png"
+  alt="Admin Dashboard"
+  className="mx-auto mb-4"
+  style={{ maxWidth: '130px' }}
+/>
+
       <ul className="nav flex-column">
         {menuItems.map((item, index) => {
           const isOpen = openMenu === item.label;

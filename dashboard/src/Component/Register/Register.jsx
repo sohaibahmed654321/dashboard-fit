@@ -109,7 +109,7 @@ function Register() {
               </button>
               <div className="text-center mt-3">
                 <p className="mb-0">Already have an account?</p>
-                <Link to="/login" className="text-decoration-none fw-semibold text-dark">
+                <Link to="/" className="text-decoration-none fw-semibold text-dark">
                   Login Your Account
                 </Link>
               </div>

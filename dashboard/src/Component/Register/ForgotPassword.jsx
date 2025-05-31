@@ -65,7 +65,7 @@ function ForgotPassword() {
         </form>
 
         <div className="text-center mt-3">
-          <Link to="/login" className="text-decoration-none fw-semibold text-dark">
+          <Link to="/" className="text-decoration-none fw-semibold text-dark">
             🔙 Back to Login
           </Link>
         </div>

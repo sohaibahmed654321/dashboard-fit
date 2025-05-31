@@ -32,7 +32,7 @@ function Login() {
       
       // ✅ Redirect after a short delay so toast is visible
       setTimeout(() => {
-        navigate("/work");
+        navigate("/h");
       }, 1000);
     } catch (error) {
       toast.error("❌ Login failed: " + (error.response?.data?.error || error.message));
