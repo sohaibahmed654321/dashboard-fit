@@ -15,7 +15,11 @@ import Showdata from "./Component/Register/Showdata";
 import Login from "./Component/Register/Login";
 import ForgotPassword from "./Component/Register/ForgotPassword";
 import Progress from "./Component/Progress/Progres";
-import Home from "./Component/Home/Home"
+
+import SetCounterChart from "./Component/Home/Home";
+import Logout from "./Component/Logout/Logout";
+
+
 
 
 
@@ -31,6 +35,7 @@ function App() {
             <Route path="/register" element={<Register />} />
           <Route path="/show" element={<Showdata />} />
           <Route path="/" element={<Login />} />
+          <Route path="/logout" element={<Logout/>} />
           <Route path="/fp" element={<ForgotPassword />} />
           <Route path="/work" element={<AddWorkout />} />
           <Route path="/view" element={<ViewWorkout />} />
@@ -39,7 +44,7 @@ function App() {
           <Route path="/nutrition" element={<AddNutritionForm />} />
           <Route path="/v" element={<Viewnutrition/>} />
           <Route path="/p" element={<Progress/>} />
-          <Route path="/h" element={<Home/>} />
+          <Route path="/h" element={<SetCounterChart/>} />
 
           
 

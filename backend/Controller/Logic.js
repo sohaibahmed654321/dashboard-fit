@@ -2,13 +2,24 @@ const Workout = require('../Models/User');
 
 // POST: Add workout
 const addWorkout = async (req, res) => {
-  try {
-    const { type, name, sets, reps, weight, date } = req.body;
-    const newWorkout = new Workout({ type, name, sets, reps, weight, date });
-    await newWorkout.save();
-    res.status(201).json({ message: 'Workout added successfully', workout: newWorkout });
-  } catch (error) {
-    res.status(500).json({ message: 'Error adding workout', error: error.message });
+   try {
+    const { userId, type, name, sets, reps, weight, date } = req.body;
+    if (!userId) return res.status(400).json({ message: "UserId is required" });
+
+    const newWorkout = new Workout({
+      userId,
+      type,
+      name,
+      sets,
+      reps,
+      weight,
+      date,
+    });
+
+    const savedWorkout = await newWorkout.save();
+    res.status(201).json(savedWorkout);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 };
 

@@ -10,19 +10,24 @@ const ViewSetCounter = () => {
   const [filteredSets, setFilteredSets] = useState([]);
   const [selectedDate, setSelectedDate] = useState(null);
 
-  useEffect(() => {
-    const fetchSetCounters = async () => {
-      try {
-        const res = await axios.get("http://localhost:3009/api/setcounter");
-        setSets(res.data);
-        setFilteredSets(res.data);
-      } catch (error) {
-        alert("❌ Error fetching sets: " + error.message);
+ useEffect(() => {
+  const fetchSetCounters = async () => {
+    try {
+      const userId = localStorage.getItem("userId"); // get logged in userId
+      if (!userId) {
+        alert("User not logged in");
+        return;
       }
-    };
-    fetchSetCounters();
-  }, []);
 
+      const res = await axios.get(`http://localhost:3009/api/setcounter?userId=${userId}`);
+      setSets(res.data);
+      setFilteredSets(res.data);
+    } catch (error) {
+      alert("❌ Error fetching sets: " + error.message);
+    }
+  };
+  fetchSetCounters();
+}, []);
   useEffect(() => {
     if (selectedDate) {
       const filtered = sets.filter((set) => {

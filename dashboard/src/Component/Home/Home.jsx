@@ -16,7 +16,6 @@ const SetCounterChart = () => {
   const [chartData, setChartData] = useState([]);
   const [groupedData, setGroupedData] = useState([]);
   const [nutritionData, setNutritionData] = useState([]);
-  const [user, setUser] = useState({});
   const [data, setData] = useState({
     height: "",
     weight: "",
@@ -27,26 +26,26 @@ const SetCounterChart = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const user = JSON.parse(localStorage.getItem("user_data"));
-        const userId = user?.id;
-        setUser(user);
-
+        const userId = localStorage.getItem("userId");
         if (!userId) {
           console.warn("No user ID found in localStorage");
           return;
         }
 
-        const res = await axios.get(
+        // Fetch user profile
+        const profileRes = await axios.get(
           `http://localhost:3009/api/users/users/profile/${userId}`
         );
-        setData(res.data);
+        setData(profileRes.data);
 
-        const workoutRes = await axios.get(
-          "http://localhost:3009/api/setcounter"
+        // Fetch setcounter data for this user
+        const setRes = await axios.get(
+          `http://localhost:3009/api/setcounter?userId=${userId}`
         );
-        setChartData(workoutRes.data);
-        groupByWorkoutType(workoutRes.data);
+        setChartData(setRes.data);
+        groupByWorkoutType(setRes.data);
 
+        // Fetch nutrition data for this user
         const nutritionRes = await axios.get(
           `http://localhost:3009/api/nutrition/n/${userId}`
         );
@@ -62,28 +61,32 @@ const SetCounterChart = () => {
   const groupByWorkoutType = (data) => {
     const grouped = data.reduce((acc, curr) => {
       const name = curr.workoutName;
-      const steps = parseInt(curr.totalSets, 10);
-      acc[name] = (acc[name] || 0) + steps;
+      const sets = parseInt(curr.totalSets, 10) || 0;
+      acc[name] = (acc[name] || 0) + sets;
       return acc;
     }, {});
+
     const groupedArray = Object.entries(grouped).map(([name, total]) => ({
       workoutName: name,
       totalSets: total,
     }));
+
     setGroupedData(groupedArray);
   };
 
   const groupNutritionData = (data) => {
     const grouped = data.reduce((acc, curr) => {
       const name = curr.foodName;
-      const cal = parseInt(curr.calories, 10);
+      const cal = parseInt(curr.calories, 10) || 0;
       acc[name] = (acc[name] || 0) + cal;
       return acc;
     }, {});
+
     const nutritionArray = Object.entries(grouped).map(([name, calories]) => ({
       foodName: name,
-      calories: calories,
+      calories,
     }));
+
     setNutritionData(nutritionArray);
   };
 
@@ -106,6 +109,7 @@ const SetCounterChart = () => {
   return (
     <div className="d-flex">
       <Sidebar />
+
       <div
         className="flex-grow-1 p-4"
         style={{
@@ -117,87 +121,87 @@ const SetCounterChart = () => {
       >
         <div className="container my-5">
           {/* 🧍 Health Overview */}
-<div
-  className="card mx-auto mb-5"
-  style={{
-    maxWidth: "700px",
-    borderRadius: "18px",
-    padding: "30px",
-    background: "#ffffff",
-    boxShadow: "0 6px 20px rgba(0, 0, 0, 0.1)",
-  }}
->
-  <h4 className="text-center fw-bold text-dark mb-4">
-    🩺 Health Overview
-  </h4>
+          <div
+            className="card mx-auto mb-5"
+            style={{
+              maxWidth: "700px",
+              borderRadius: "18px",
+              padding: "30px",
+              background: "#ffffff",
+              boxShadow: "0 6px 20px rgba(0, 0, 0, 0.1)",
+            }}
+          >
+            <h4 className="text-center fw-bold text-dark mb-4">
+              🩺 Health Overview
+            </h4>
 
-  <div className="row text-center">
-    {/* Height */}
-    <div className="col-md-4 mb-3 mb-md-0">
-      <div
-        className="border rounded p-3"
-        style={{ backgroundColor: "#f1f8ff", borderColor: "#d0e8ff" }}
-      >
-        <h6 className="text-muted">Height</h6>
-        <p className="fs-4 fw-semibold text-dark mb-0">
-          {data.height || "--"} <small className="text-secondary">cm</small>
-        </p>
-      </div>
-    </div>
+            <div className="row text-center">
+              {/* Height */}
+              <div className="col-md-4 mb-3 mb-md-0">
+                <div
+                  className="border rounded p-3"
+                  style={{ backgroundColor: "#f1f8ff", borderColor: "#d0e8ff" }}
+                >
+                  <h6 className="text-muted">Height</h6>
+                  <p className="fs-4 fw-semibold text-dark mb-0">
+                    {data.height || "--"}{" "}
+                    <small className="text-secondary">cm</small>
+                  </p>
+                </div>
+              </div>
 
-    {/* Weight */}
-    <div className="col-md-4 mb-3 mb-md-0">
-      <div
-        className="border rounded p-3"
-        style={{ backgroundColor: "#f1f8ff", borderColor: "#d0e8ff" }}
-      >
-        <h6 className="text-muted">Weight</h6>
-        <p className="fs-4 fw-semibold text-dark mb-0">
-          {data.weight || "--"} <small className="text-secondary">kg</small>
-        </p>
-      </div>
-    </div>
+              {/* Weight */}
+              <div className="col-md-4 mb-3 mb-md-0">
+                <div
+                  className="border rounded p-3"
+                  style={{ backgroundColor: "#f1f8ff", borderColor: "#d0e8ff" }}
+                >
+                  <h6 className="text-muted">Weight</h6>
+                  <p className="fs-4 fw-semibold text-dark mb-0">
+                    {data.weight || "--"}{" "}
+                    <small className="text-secondary">kg</small>
+                  </p>
+                </div>
+              </div>
 
-    {/* BMI */}
-    <div className="col-md-4">
-      <div
-        className="border rounded p-3"
-        style={{ backgroundColor: "#f1f8ff", borderColor: "#d0e8ff" }}
-      >
-        <h6 className="text-muted">BMI</h6>
-        <p className="fs-4 fw-semibold text-dark mb-1">
-          {calculateBMI(data.height, data.weight)}
-        </p>
-        <span
-          className="badge rounded-pill"
-          style={{
-            fontSize: "0.9rem",
-            backgroundColor:
-              getBMICategory(data.height, data.weight) === "Normal"
-                ? "#c8e6c9"
-                : getBMICategory(data.height, data.weight) === "Underweight"
-                ? "#ffe0b2"
-                : getBMICategory(data.height, data.weight) === "Overweight"
-                ? "#fff59d"
-                : "#ef9a9a",
-            color:
-              getBMICategory(data.height, data.weight) === "Normal"
-                ? "#2e7d32"
-                : getBMICategory(data.height, data.weight) === "Underweight"
-                ? "#ef6c00"
-                : getBMICategory(data.height, data.weight) === "Overweight"
-                ? "#fbc02d"
-                : "#c62828",
-          }}
-        >
-          {getBMICategory(data.height, data.weight)}
-        </span>
-      </div>
-    </div>
-  </div>
-</div>
-
-
+              {/* BMI */}
+              <div className="col-md-4">
+                <div
+                  className="border rounded p-3"
+                  style={{ backgroundColor: "#f1f8ff", borderColor: "#d0e8ff" }}
+                >
+                  <h6 className="text-muted">BMI</h6>
+                  <p className="fs-4 fw-semibold text-dark mb-1">
+                    {calculateBMI(data.height, data.weight)}
+                  </p>
+                  <span
+                    className="badge rounded-pill"
+                    style={{
+                      fontSize: "0.9rem",
+                      backgroundColor:
+                        getBMICategory(data.height, data.weight) === "Normal"
+                          ? "#c8e6c9"
+                          : getBMICategory(data.height, data.weight) === "Underweight"
+                          ? "#ffe0b2"
+                          : getBMICategory(data.height, data.weight) === "Overweight"
+                          ? "#fff59d"
+                          : "#ef9a9a",
+                      color:
+                        getBMICategory(data.height, data.weight) === "Normal"
+                          ? "#2e7d32"
+                          : getBMICategory(data.height, data.weight) === "Underweight"
+                          ? "#ef6c00"
+                          : getBMICategory(data.height, data.weight) === "Overweight"
+                          ? "#fbc02d"
+                          : "#c62828",
+                    }}
+                  >
+                    {getBMICategory(data.height, data.weight)}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
 
           {/* 📊 Workout Log */}
           <div
@@ -218,7 +222,7 @@ const SetCounterChart = () => {
             </ResponsiveContainer>
           </div>
 
-          {/* 🏃 Grouped Workouts */}
+          {/* 🏃 Total Steps per Workout Type */}
           <div
             className="card shadow-lg p-4 mx-auto mb-5"
             style={{ maxWidth: "800px", borderRadius: "15px" }}
@@ -237,7 +241,7 @@ const SetCounterChart = () => {
             </ResponsiveContainer>
           </div>
 
-          {/* 🥗 Nutrition Data */}
+          {/* 🥗 Calories per Food Item */}
           <div
             className="card shadow-lg p-4 mx-auto"
             style={{ maxWidth: "800px", borderRadius: "15px" }}

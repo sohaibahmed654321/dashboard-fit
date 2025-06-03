@@ -19,11 +19,11 @@ const AddNutritionForm = () => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const loggedUser = JSON.parse(localStorage.getItem("user_data"));
-    if (loggedUser?.id) {
+    const userId = localStorage.getItem("userId");
+    if (userId) {
       setFormData(prev => ({
         ...prev,
-        userid: loggedUser.id
+        userid: userId
       }));
     }
   }, []);
@@ -79,14 +79,15 @@ const AddNutritionForm = () => {
     setLoading(true);
 
     try {
-      await axios.post('http://localhost:3009/api/nutrition/n', {
-        ...formData,
-        calories: Number(formData.calories),
-        protein: Number(formData.protein),
-        carbs: Number(formData.carbs),
-        fats: Number(formData.fats),
-        user: formData.userid,
-      });
+    await axios.post('http://localhost:3009/api/nutrition/n', {
+  foodName: formData.foodName, // ✅ fix here
+  calories: Number(formData.calories),
+  protein: Number(formData.protein),
+  carbs: Number(formData.carbs),
+  fats: Number(formData.fats),
+  user: formData.userid,
+});
+
 
       Swal.fire('Added!', 'Nutrition data saved successfully.', 'success');
       setFormData({
@@ -99,48 +100,47 @@ const AddNutritionForm = () => {
       });
     } catch (err) {
       console.error(err);
-      Swal.fire('Error', 'Failed to save nutrition data.', 'error');
+      Swal.fire(err.response.data.msg);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-     <div className="d-flex">
+    <div className="d-flex">
       <Sidebar />
       <div className="flex-grow-1 p-4" style={{ marginLeft: '250px', padding: '20px', minHeight: '100vh', backgroundColor: '#f8f9fa' }}>
-    <div className="container my-5">
-      <div className="card shadow-lg p-4 mx-auto" style={{ maxWidth: "600px", borderRadius: "15px" }}>
-        <h2 className="text-center mb-4 fw-bold text-primary">🥗 Add Nutrition Data</h2>
-        <form onSubmit={handleSubmit}>
-          {['foodName', 'calories', 'protein', 'carbs', 'fats'].map((field, idx) => (
-            <div className="mb-3" key={idx}>
-              <label className="form-label fw-semibold">
-                {field.charAt(0).toUpperCase() + field.slice(1)} {field !== 'foodName' && '(g)'}
-              </label>
-              <input
-                type={field === 'foodName' ? 'text' : 'number'}
-                name={field}
-                className="form-control rounded-pill"
-                value={formData[field]}
-                onChange={handleChange}
-                onBlur={field === 'foodName' ? () => fetchNutritionData(formData.foodName.trim()) : undefined}
-                onKeyDown={field === 'foodName' ? (e) => e.key === 'Enter' && fetchNutritionData(formData.foodName.trim()) : undefined}
-                required
-                disabled={loading}
-              />
-            </div>
-          ))}
+        <div className="container my-5">
+          <div className="card shadow-lg p-4 mx-auto" style={{ maxWidth: "600px", borderRadius: "15px" }}>
+            <h2 className="text-center mb-4 fw-bold text-primary">🥗 Add Nutrition Data</h2>
+            <form onSubmit={handleSubmit}>
+              {['foodName', 'calories', 'protein', 'carbs', 'fats'].map((field, idx) => (
+                <div className="mb-3" key={idx}>
+                  <label className="form-label fw-semibold">
+                    {field.charAt(0).toUpperCase() + field.slice(1)} {field !== 'foodName' && '(g)'}
+                  </label>
+                  <input
+                    type={field === 'foodName' ? 'text' : 'number'}
+                    name={field}
+                    className="form-control rounded-pill"
+                    value={formData[field]}
+                    onChange={handleChange}
+                    onBlur={field === 'foodName' ? () => fetchNutritionData(formData.foodName.trim()) : undefined}
+                    onKeyDown={field === 'foodName' ? (e) => e.key === 'Enter' && fetchNutritionData(formData.foodName.trim()) : undefined}
+                    required
+                    disabled={loading}
+                  />
+                </div>
+              ))}
 
-          <button type="submit" className="btn btn-primary w-100 rounded-pill fw-bold" disabled={loading}>
-            {loading ? 'Saving...' : '➕ Add Nutrition'}
-          </button>
-        </form>
+              <button type="submit" className="btn btn-primary w-100 rounded-pill fw-bold" disabled={loading}>
+                {loading ? 'Saving...' : '➕ Add Nutrition'}
+              </button>
+            </form>
+          </div>
+        </div>
       </div>
     </div>
-    </div>
-    </div>
-
   );
 };
 

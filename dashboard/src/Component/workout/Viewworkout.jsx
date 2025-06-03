@@ -17,7 +17,13 @@ const ViewWorkout = () => {
 
   const fetchWorkouts = async () => {
     try {
-      const res = await axios.get("http://localhost:3009/api/workouts");
+      const userId = localStorage.getItem("userId");
+      if (!userId) {
+        Swal.fire("Error", "User not logged in", "error");
+        return;
+      }
+
+      const res = await axios.get(`http://localhost:3009/api/workouts/getworkout/${userId}`);
       setWorkouts(res.data);
     } catch (error) {
       alert("Error fetching workouts: " + error.message);
@@ -41,164 +47,106 @@ const ViewWorkout = () => {
         Swal.fire("Deleted!", "Workout has been deleted.", "success");
         fetchWorkouts();
       } catch (error) {
-        Swal.fire("Error", error.message, "error");
+        Swal.fire("Error!", "Failed to delete workout.", "error");
       }
     }
   };
 
   const handleEdit = (workout) => {
-    navigate("/work", { state: { workout } });
+    navigate("/add", { state: { workout } });
   };
 
+  // Pagination logic
   const filteredWorkouts = workouts.filter((workout) =>
-    Object.values(workout).some((value) =>
-      value?.toString().toLowerCase().includes(searchTerm.toLowerCase())
-    )
+    workout.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
-
   const indexOfLastWorkout = currentPage * workoutsPerPage;
   const indexOfFirstWorkout = indexOfLastWorkout - workoutsPerPage;
-  const currentWorkouts = filteredWorkouts.slice(
-    indexOfFirstWorkout,
-    indexOfLastWorkout
-  );
+  const currentWorkouts = filteredWorkouts.slice(indexOfFirstWorkout, indexOfLastWorkout);
   const totalPages = Math.ceil(filteredWorkouts.length / workoutsPerPage);
-
-  const goToPage = (page) => {
-    if (page >= 1 && page <= totalPages) {
-      setCurrentPage(page);
-    }
-  };
 
   return (
     <div className="d-flex">
       <Sidebar />
       <div
         className="flex-grow-1 p-4"
-        style={{
-          marginLeft: "250px",
-          padding: "20px",
-          minHeight: "100vh",
-          backgroundColor: "#f8f9fa",
-        }}
+        style={{ marginLeft: "250px", padding: "20px", minHeight: "100vh", backgroundColor: "#f8f9fa" }}
       >
-        <div className="container my-5">
-          <h3 className="mb-4 text-center fw-bold text-primary">
-            📋 All Workouts
-          </h3>
-
-          <div className="mb-4 text-center">
+        <div className="container my-4">
+          <div className="d-flex justify-content-between align-items-center mb-3">
+            <h2 className="text-primary fw-bold">🏋️‍♂️ Your Workouts</h2>
+            <br />
+            <br />
             <input
-              type="text"
-              className="form-control w-50 mx-auto mb-4"
-              placeholder="Search workouts..."
+              type="search"
+              className="form-control w-50 rounded-pill"
+              placeholder="Search by exercise name..."
               value={searchTerm}
-              onChange={(e) => {
-                setSearchTerm(e.target.value);
-                setCurrentPage(1);
-              }}
-              style={{ boxShadow: "none", outline: "none" }}
+              onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
 
-          {filteredWorkouts.length === 0 ? (
-            <p className="text-center fs-5 text-muted">No workouts found.</p>
+          {currentWorkouts.length === 0 ? (
+            <p className="text-muted text-center">No workouts found.</p>
           ) : (
-            <>
-              <div className="row g-4">
-                {currentWorkouts.map((workout) => (
-                  <div key={workout._id} className="col-md-6 col-lg-4">
-                    <div className="card shadow-sm rounded-4 h-100 border-0">
-                      <div className="card-body">
-                        <h5 className="card-title fw-bold text-primary">
-                          {workout.name}
-                        </h5>
-                        <p className="card-text mb-1">
-                          <strong>Type:</strong> {workout.type}
-                        </p>
-                        <p className="card-text mb-1">
-                          <strong>Sets:</strong> {workout.sets}
-                        </p>
-                        <p className="card-text mb-1">
-                          <strong>Reps:</strong> {workout.reps}
-                        </p>
-                        <p className="card-text mb-1">
-                          <strong>Weight:</strong> {workout.weight || "N/A"} kg
-                        </p>
-                        <p className="card-text">
-                          <strong>Date:</strong>{" "}
-                          {new Date(workout.date).toLocaleDateString()}
-                        </p>
-                        <div className="d-flex justify-content-between mt-3">
-                          <button
-                            className="btn btn-warning btn-sm rounded-pill px-3 fw-semibold"
-                            onClick={() => handleEdit(workout)}
-                          >
-                            ✏️ Edit
-                          </button>
-                          <button
-                            className="btn btn-danger btn-sm rounded-pill px-3 fw-semibold"
-                            onClick={() => handleDelete(workout._id)}
-                          >
-                            🗑️ Delete
-                          </button>
-                        </div>
-                      </div>
+            <div className="row">
+              {currentWorkouts.map((workout) => (
+                <div className="col-md-4 mb-4" key={workout._id}>
+                  <div className="card shadow-sm h-100">
+                    <div className="card-body">
+                      <h5 className="card-title fw-bold">{workout.name}</h5>
+                      <p className="card-text">
+                        <strong>Type:</strong> {workout.type}
+                        <br />
+                        <strong>Sets:</strong> {workout.sets}
+                        <br />
+                        <strong>Reps:</strong> {workout.reps}
+                        <br />
+                        <strong>Weight:</strong> {workout.weight} kg
+                        <br />
+                        <strong>Date:</strong>{" "}
+                        {new Date(workout.date).toLocaleDateString()}
+                      </p>
+                      <button
+                        className="btn btn-sm btn-outline-primary me-2"
+                        onClick={() => handleEdit(workout)}
+                      >
+                        Edit
+                      </button>
+                      <button
+                        className="btn btn-sm btn-outline-danger"
+                        onClick={() => handleDelete(workout._id)}
+                      >
+                        Delete
+                      </button>
                     </div>
                   </div>
-                ))}
-              </div>
-
-              {/* Pagination Controls */}
-              {totalPages > 1 && (
-                <div className="d-flex justify-content-center mt-4">
-                  <nav>
-                    <ul className="pagination">
-                      <li className={`page-item ${currentPage === 1 ? "disabled" : ""}`}>
-                        <button
-                          className="page-link"
-                          style={{ boxShadow: "none", outline: "none" }}
-                          onClick={() => goToPage(currentPage - 1)}
-                        >
-                          ◀ Previous
-                        </button>
-                      </li>
-
-                      {[...Array(totalPages)].map((_, index) => (
-                        <li
-                          key={index}
-                          className={`page-item ${
-                            currentPage === index + 1 ? "active" : ""
-                          }`}
-                        >
-                          <button
-                            className="page-link"
-                            style={{ boxShadow: "none", outline: "none" }}
-                            onClick={() => goToPage(index + 1)}
-                          >
-                            {index + 1}
-                          </button>
-                        </li>
-                      ))}
-
-                      <li
-                        className={`page-item ${
-                          currentPage === totalPages ? "disabled" : ""
-                        }`}
-                      >
-                        <button
-                          className="page-link"
-                          style={{ boxShadow: "none", outline: "none" }}
-                          onClick={() => goToPage(currentPage + 1)}
-                        >
-                          Next ▶
-                        </button>
-                      </li>
-                    </ul>
-                  </nav>
                 </div>
-              )}
-            </>
+              ))}
+            </div>
+          )}
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <nav>
+              <ul className="pagination justify-content-center">
+                {[...Array(totalPages)].map((_, idx) => (
+                  <li
+                    key={idx}
+                    className={`page-item ${
+                      currentPage === idx + 1 ? "active" : ""
+                    }`}
+                  >
+                    <button
+                      className="page-link"
+                      onClick={() => setCurrentPage(idx + 1)}
+                    >
+                      {idx + 1}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </nav>
           )}
         </div>
       </div>

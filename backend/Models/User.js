@@ -1,8 +1,12 @@
-// User.js
 const mongoose = require('mongoose');
 
 const workoutSchema = new mongoose.Schema({
-  type: { type: String, required: true },  // 👈 New field added
+  userId: { 
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: 'User', 
+    required: true 
+  },
+  type: { type: String, required: true },
   name: { type: String, required: true },
   sets: { type: Number, required: true },
   reps: { type: Number, required: true },
